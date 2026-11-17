@@ -1,0 +1,36 @@
+name: Publish test update v0.0.4
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish-test-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate dummy ZIP and manifest
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, json
+          from pathlib import Path
+          filename = "Application-v0.0.4.zip"
+          data = base64.b64decode("UEsDBBQAAAAIAMpycV3pl6A/RQAAAEkAAAAWAAAAQXBwbGljYXRpb24vUkVBRE1FLnR4dAXB0Q2AIAwFwH+neBMwhd/uUGklRGiJtFG2926P3hdiMLlgUL6pCC574DK9agHbq82IJ0zbSjgM8kkOp7MJquYWLJy2H1BLAwQUAAAACADKcnFdwTpoIxYAAAAUAAAAGAAAAEFwcGxpY2F0aW9uL3ZlcnNpb24uanNvbqtWKkstKs7Mz1OyUlAy0DPQM1GqBQBQSwECFAMUAAAACADKcnFd6ZegP0UAAABJAAAAFgAAAAAAAAAAAAAAgAEAAAAAQXBwbGljYXRpb24vUkVBRE1FLnR4dFBLAQIUAxQAAAAIAMpycV3BOmgjFgAAABQAAAAYAAAAAAAAAAAAAACAAXkAAABBcHBsaWNhdGlvbi92ZXJzaW9uLmpzb25QSwUGAAAAAAIAAgCKAAAAxQAAAAAA")
+          Path(filename).write_bytes(data)
+          assert hashlib.sha256(data).hexdigest() == "76f420190bbce3df28e65a4007b13277687e491d41096f9cc1b34816cd3d9d61"
+          manifest = {"version": "0.0.4", "download_url": "https://github.com/Tooling2024/tool-updates/releases/download/v0.0.4/" + filename, "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data), "mandatory": False, "release_notes": ["Test update package. No executable included."]}
+          Path("version.json").write_text(json.dumps(manifest, indent=4) + "\n", encoding="utf-8")
+          PY
+      - name: Upload missing assets without overwriting
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Tooling2024/tool-updates
+        run: |
+          set -euo pipefail
+          gh release view v0.0.4 --json assets > existing-assets.json
+          python3 - <<'PY'
+          import json
+          names = {a["name"] for a in json.load(open("existing-assets.json"))["assets"]}
+          if names.intersection({"Application-v0.0.4.zip", "version.json"}):
+              raise SystemExit("Test assets already exist; inspect manually before replacing anything.")
+          PY
+          gh release upload v0.0.4 Application-v0.0.4.zip version.json
+          gh release view v0.0.4 --json assets
