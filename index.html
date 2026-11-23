@@ -58,6 +58,10 @@
   code { background:#eef4f4; padding:2px 6px; border-radius:5px; font-size:13px; }
   .band { background:#e9f5f6; border:1px solid #bfe0e2; border-radius:16px; padding:26px 28px; text-align:center; }
   .band b { color:var(--teal-d); }
+  .tree { font-family:'Consolas','Courier New',monospace; background:#0e3a3f; color:#cfeaec; border-radius:12px;
+          padding:16px 18px; font-size:13.5px; line-height:1.85; white-space:pre; overflow-x:auto; margin:14px 0 6px; }
+  .tree .hl { color:#7fe3b0; font-weight:600; }
+  .tree .note { color:#ffcf7a; }
   footer { text-align:center; color:var(--mut); font-size:13px; padding:34px 0 44px; border-top:1px solid var(--line); }
   @media (max-width:720px) { .grid, .steps { grid-template-columns:1fr; } .hero h1 { font-size:30px; } }
   @media (prefers-reduced-motion: reduce) { .logobox,.ring,.node,.box,.check { animation:none; } .check { stroke-dashoffset:0; } .box { opacity:0; } }
@@ -82,7 +86,7 @@
         <a class="btn btn-primary" href="https://github.com/Tooling2024/tool-updates/releases/latest/download/PacketSysTest-Setup.zip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
           Download for Windows</a>
-        <a class="btn btn-ghost" href="https://github.com/Tooling2024/tool-updates/raw/HEAD/Packet_SysTest_Blocks.xlsx">
+        <a class="btn btn-ghost" href="https://github.com/Tooling2024/tool-updates/releases/latest/download/Packet_SysTest_Blocks.xlsx">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
           Excel blocks template</a>
       </div>
@@ -130,6 +134,14 @@
     <section>
       <div class="card">
         <b>Good to know</b>
+        <span>After you unzip, the folder looks like this. Your Excel blocks file must sit <b>next to</b> <code>Packet_SysTest_Tool.exe</code> inside <code>Application</code> so the tool can load it:</span>
+<div class="tree">PacketSysTest-Setup
+├─ Updater.exe
+└─ Application
+   ├─ Packet_SysTest_Tool.exe
+   ├─ _internal
+   ├─ version.json
+   └─ <span class="hl">Packet_SysTest_Blocks.xlsx</span>   <span class="note">&larr; keep the Excel here, beside the tool</span></div>
         <span>
           Keep <code>Updater.exe</code> next to the <code>Application</code> folder &mdash; it's what performs updates.<br>
           On first launch, Windows SmartScreen may warn about an unknown publisher: click <b>More info &rarr; Run anyway</b>.
