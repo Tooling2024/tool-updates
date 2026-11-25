@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Packet SysTest Tool</title>
 <style>
-  :root { --teal:#14919b; --teal-d:#0e3a3f; --ink:#1a2e31; --mut:#5a6b6d; --line:#e4eded; --bg:#f4f8f8; }
+  :root { --teal:#14919b; --teal-d:#5fd6ff; --ink:#edf7ff; --mut:#9bb0c8; --line:#34516e; --bg:#091626; }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:'Segoe UI',system-ui,Arial,sans-serif; color:var(--ink); background:var(--bg); line-height:1.6; }
+  body { margin:0; font-family:'Segoe UI',system-ui,Arial,sans-serif; color:var(--ink); background:radial-gradient(circle at 50% 40%,#132844 0,#091626 45%,#050b14 100%) fixed; line-height:1.6; }
   .wrap { max-width:900px; margin:0 auto; padding:0 22px; }
   a { color:inherit; }
-  .hero { background:linear-gradient(135deg,#0e3a3f 0%,#14919b 100%); color:#fff; text-align:center; padding:66px 0 84px; }
+  .hero { background:transparent; color:#fff; text-align:center; padding:66px 0 84px; }
   .logowrap { position:relative; display:inline-block; }
   .ring { position:absolute; inset:-22px; border-radius:50%;
            background:radial-gradient(closest-side, rgba(93,202,165,.55), rgba(93,202,165,0)); animation:pulse 3.6s ease-in-out infinite; }
@@ -37,7 +37,7 @@
   .btn { display:inline-flex; align-items:center; gap:9px; text-decoration:none; font-size:16px; font-weight:600;
           padding:14px 28px; border-radius:12px; transition:transform .12s, box-shadow .12s, background .12s; }
   .btn svg { width:20px; height:20px; }
-  .btn-primary { background:#fff; color:var(--teal-d); box-shadow:0 8px 22px rgba(0,0,0,.22); }
+  .btn-primary { background:#fff; color:#0b2a35; box-shadow:0 8px 22px rgba(0,0,0,.22); }
   .btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.28); }
   .btn-ghost { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.45); }
   .btn-ghost:hover { background:rgba(255,255,255,.2); transform:translateY(-2px); }
@@ -46,17 +46,17 @@
   h2 { font-size:24px; font-weight:600; color:var(--teal-d); text-align:center; margin:0 0 6px; }
   .sub { text-align:center; color:var(--mut); margin:0 0 30px; }
   .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px; transition:transform .14s, box-shadow .14s; }
-  .card:hover { transform:translateY(-4px); box-shadow:0 12px 26px rgba(14,58,63,.10); }
-  .card .ic { width:44px; height:44px; border-radius:12px; background:#e9f5f6; color:var(--teal); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .card { background:linear-gradient(145deg,#172943,#0e1b2f); border:1px solid var(--line); border-radius:14px; padding:22px; transition:transform .14s, box-shadow .14s; }
+  .card:hover { transform:translateY(-4px); box-shadow:0 14px 30px rgba(0,0,0,.45); border-color:#5fd6ff55; }
+  .card .ic { width:44px; height:44px; border-radius:12px; background:#12304a; color:#5fd6ff; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
   .card .ic svg { width:24px; height:24px; }
   .card b { display:block; font-size:16px; margin-bottom:5px; }
   .card span { color:var(--mut); font-size:14px; }
   .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
   .num { width:32px; height:32px; border-radius:50%; background:var(--teal); color:#fff; font-weight:600;
           display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
-  code { background:#eef4f4; padding:2px 6px; border-radius:5px; font-size:13px; }
-  .band { background:#e9f5f6; border:1px solid #bfe0e2; border-radius:16px; padding:26px 28px; text-align:center; }
+  code { background:#10243e; color:#cfe9f5; padding:2px 6px; border-radius:5px; font-size:13px; }
+  .band { background:linear-gradient(145deg,#172943,#0e1b2f); border:1px solid #34516e; border-radius:16px; padding:26px 28px; text-align:center; }
   .band b { color:var(--teal-d); }
   .tree { font-family:'Consolas','Courier New',monospace; background:#0e3a3f; color:#cfeaec; border-radius:12px;
           padding:16px 18px; font-size:13.5px; line-height:1.85; white-space:pre; overflow-x:auto; margin:14px 0 6px; }
@@ -69,6 +69,9 @@
   footer .fine { margin-top:8px; color:var(--mut); }
   @media (max-width:720px) { .grid, .steps { grid-template-columns:1fr; } .hero h1 { font-size:30px; } }
   @media (prefers-reduced-motion: reduce) { .logobox,.ring,.node,.box,.check { animation:none; } .check { stroke-dashoffset:0; } .box { opacity:0; } }
+  .arch-frame { border:1px solid #34516e; border-radius:16px; overflow:hidden; background:#07111f; box-shadow:0 18px 50px rgba(0,0,0,.5); }
+  .arch-frame iframe { width:100%; height:840px; border:0; display:block; }
+  .arch-fallback { text-align:center; margin-top:14px; }
 </style>
 </head>
 <body>
@@ -115,6 +118,15 @@
       <b>Reports & logging</b><span>Run results, request logs and exportable reports.</span></div><div class="card">
       <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8.5 8 11 4.5-2.5 8-6 8-11V5l-8-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
       <b>Secure auto-updates</b><span>Signed updates delivered straight into the tool.</span></div></div>
+    </section>
+
+    <section>
+      <h2>Current integration support</h2>
+      <p class="sub">The tool, its hardware and software blocks, the ECU, and built-in verification &mdash; live.</p>
+      <div class="arch-frame">
+        <iframe src="architecture.html" title="Packet SysTest integration diagram" loading="lazy"></iframe>
+      </div>
+      <div class="arch-fallback"><a class="btn btn-ghost" href="architecture.html">Open the full diagram</a></div>
     </section>
 
     <section>

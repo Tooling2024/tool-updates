@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Packet SysTest Architecture</title>
+<style>
+:root{
+  --bg:#07111f; --panel:#101d31; --panel2:#14253d; --line:#5fd6ff;
+  --green:#41d7a7; --yellow:#ffc857; --purple:#ad8cff; --text:#edf7ff; --muted:#9bb0c8;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 40%,#132844 0,#091626 45%,#050b14 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;overflow-x:hidden}
+header{text-align:center;padding:26px 20px 10px}
+header h1{margin:0;font-size:clamp(25px,3vw,40px);letter-spacing:.2px}
+header p{margin:9px auto 0;color:var(--muted);max-width:760px;line-height:1.55}
+.toolbar{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:15px 0}
+button{border:1px solid #2d4d70;background:#10243e;color:#dff7ff;border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:650;transition:.2s}
+button:hover,button.active{background:#173b5c;border-color:#5fd6ff;transform:translateY(-1px)}
+.diagram{position:relative;width:min(1240px,96vw);height:700px;margin:0 auto 30px;border:1px solid #29405d;border-radius:24px;background:linear-gradient(145deg,rgba(17,34,57,.95),rgba(7,17,31,.94));box-shadow:0 28px 80px #0008;overflow:hidden}
+.grid{position:absolute;inset:0;background-image:linear-gradient(#6bd8ff0b 1px,transparent 1px),linear-gradient(90deg,#6bd8ff0b 1px,transparent 1px);background-size:26px 26px;mask-image:linear-gradient(to bottom,#000,transparent 95%)}
+svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.wire{fill:none;stroke:#2d5775;stroke-width:6;stroke-linecap:round}
+.flow{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round;stroke-dasharray:3 18;animation:move 1.15s linear infinite;filter:drop-shadow(0 0 7px var(--line))}
+.flow.hardware{stroke:var(--yellow);filter:drop-shadow(0 0 7px var(--yellow))}
+.flow.builtin{stroke:var(--purple);filter:drop-shadow(0 0 7px var(--purple))}
+@keyframes move{to{stroke-dashoffset:-42}}
+.block,.core{position:absolute;border-radius:18px;border:1px solid #34516e;background:linear-gradient(145deg,#172943,#0e1b2f);box-shadow:0 18px 34px #0006;transition:.25s}
+.block:hover,.core:hover{transform:translateY(-4px);border-color:#6edfff;box-shadow:0 22px 40px #0008,0 0 0 1px #5fd6ff33}
+.block{width:285px;padding:18px}
+.block h2{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:18px}
+.badge{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:#1a3551;border:1px solid #3c678a}
+.item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;margin:8px 0;background:#0b1729;border:1px solid #28425f;border-radius:10px;cursor:pointer;transition:.2s}
+.item:hover{background:#12263d;border-color:#5fd6ff}.item span:first-child{font-size:13px}.method{font-size:11px;font-weight:800;letter-spacing:.5px;padding:4px 7px;border-radius:7px;background:#173650;color:#8ce5ff;white-space:nowrap}
+.software{left:42px;top:82px}.hardware{left:42px;top:365px}.ecu{right:42px;top:82px}.builtin{right:42px;top:365px}
+.hardware .method{color:#ffd77c}.builtin .method{color:#c8b7ff}.ecu .method{color:#89efc8}
+.core{left:50%;top:50%;width:260px;min-height:238px;transform:translate(-50%,-50%);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:25px;border-color:#3499b9;background:radial-gradient(circle at 50% 35%,#1a4a62,#10243a 60%,#0b1728);box-shadow:0 0 50px #14b8d433,0 25px 42px #0008;z-index:3}
+.core:hover{transform:translate(-50%,calc(-50% - 4px))}
+.logo-icon{position:relative;width:106px;height:86px;margin-bottom:12px}.node{position:absolute;width:25px;height:25px;border:4px solid #12395e;border-radius:5px;background:#55a8ff;box-shadow:0 0 16px #59b8ff55}.n1{left:4px;top:4px}.n2{left:7px;bottom:2px;background:#62d5c6}.n3{right:4px;bottom:1px;background:#66d5cb}.link{position:absolute;height:4px;background:#54d5ae;border-radius:4px;transform-origin:left center}.l1{width:47px;left:27px;top:17px;transform:rotate(38deg)}.l2{width:45px;left:29px;top:60px;transform:rotate(-5deg)}.tick{position:absolute;width:31px;height:15px;border-left:4px solid #3be0a4;border-bottom:4px solid #3be0a4;right:4px;top:11px;transform:rotate(-45deg)}
+.core h2{font-size:25px;margin:0 0 6px}.core p{margin:0;color:#a6c1d5;font-size:13px}.status{margin-top:15px;font-size:11px;font-weight:800;letter-spacing:1.2px;color:#65edc2;display:flex;align-items:center;gap:7px}.pulse{width:9px;height:9px;background:#53e0ae;border-radius:50%;box-shadow:0 0 0 0 #53e0ae88;animation:pulse 1.8s infinite}@keyframes pulse{70%{box-shadow:0 0 0 10px transparent}}
+.legend{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:18px;font-size:12px;color:#a8bed2;z-index:4}.key{display:flex;align-items:center;gap:6px}.dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.tooltip{position:fixed;display:none;pointer-events:none;background:#07101d;color:white;border:1px solid #456780;border-radius:8px;padding:8px 10px;font-size:12px;z-index:9;box-shadow:0 8px 22px #0009}
+.paused .flow{animation-play-state:paused}.dim .flow{opacity:.08}.dim .block,.dim .core{opacity:.35}.dim .focus{opacity:1;filter:none}
+@media(max-width:850px){.diagram{height:auto;min-height:1100px;padding:25px;display:flex;flex-direction:column;gap:18px}.block,.core{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:100%;transform:none!important}.core{order:-1}.wires{display:none}.legend{position:relative;left:auto;bottom:auto;transform:none;justify-content:center;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header><h1>Packet SysTest Integration Diagram</h1><p>Interactive view of the test automation tool, connected hardware, software interfaces, ECU, and built-in verification blocks.</p></header>
+<div class="toolbar"><button data-filter="all" class="active">Show all</button><button data-filter="software">Software path</button><button data-filter="hardware">Hardware path</button><button data-filter="builtin">Verification path</button></div>
+<main class="diagram" id="diagram">
+<div class="grid"></div>
+<svg class="wires" viewBox="0 0 1240 700" preserveAspectRatio="none" aria-hidden="true">
+ <path class="wire" d="M327 194 C430 194 415 292 495 318"/><path class="flow software" d="M327 194 C430 194 415 292 495 318"/>
+ <path class="wire" d="M327 500 C420 500 430 420 495 388"/><path class="flow hardware" d="M327 500 C420 500 430 420 495 388"/>
+ <path class="wire" d="M745 318 C825 285 810 194 913 194"/><path class="flow software" d="M745 318 C825 285 810 194 913 194"/>
+ <path class="wire" d="M745 388 C810 420 820 500 913 500"/><path class="flow builtin" d="M745 388 C810 420 820 500 913 500"/>
+</svg>
+<section class="block software focus-software"><h2><i class="badge">⌁</i>Software Blocks</h2><div class="item" data-info="Ethernet datagram interface used to exchange test commands and results."><span>UDP Packet</span><b class="method">UDP</b></div></section>
+<section class="block hardware focus-hardware"><h2><i class="badge">⚙</i>Hardware Blocks</h2><div class="item" data-info="Controls the Vötsch VT7004 environmental temperature chamber."><span>Temperature Chamber<br><small>Vötsch VT7004</small></span><b class="method">CHAMBER</b></div><div class="item" data-info="Captures and inspects digital communication signals."><span>Logic Analyzer<br><small>Saleae</small></span><b class="method">LOGIC</b></div><div class="item" data-info="Controls output voltage and current for the test bench."><span>Power Supply<br><small>R&amp;S NGP800</small></span><b class="method">PSU</b></div></section>
+<section class="core focus-software focus-hardware focus-builtin"><div class="logo-icon"><i class="node n1"></i><i class="node n2"></i><i class="node n3"></i><i class="link l1"></i><i class="link l2"></i><i class="tick"></i></div><h2>Packet SysTest</h2><p>Test orchestration and control tool</p><div class="status"><i class="pulse"></i> SIGNALS ACTIVE</div></section>
+<section class="block ecu focus-software"><h2><i class="badge">▣</i>ECU / DUT</h2><div class="item" data-info="Electronic Control Unit under test, receiving stimuli and returning responses."><span>Electronic Control Unit</span><b class="method">DUT</b></div><div class="item" data-info="Network connection between Packet SysTest and the ECU."><span>Ethernet Interface</span><b class="method">I/O</b></div></section>
+<section class="block builtin focus-builtin"><h2><i class="badge">✓</i>Built-in Blocks</h2><div class="item" data-info="Automatically checks a measured value or test condition."><span>Check</span><b class="method">CHECK</b></div><div class="item" data-info="Introduces a controlled wait into the test sequence."><span>Delay</span><b class="method">DELAY</b></div><div class="item" data-info="Displays a manual verification prompt to the test operator."><span>Message Box</span><b class="method">MSGBOX</b></div></section>
+<div class="legend"><span class="key"><i class="dot"></i>Data / UDP</span><span class="key"><i class="dot" style="background:var(--yellow)"></i>Hardware control</span><span class="key"><i class="dot" style="background:var(--purple)"></i>Test verification</span></div>
+</main><div class="tooltip" id="tip"></div>
+<script>
+const diagram=document.getElementById('diagram'),tip=document.getElementById('tip');
+document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;diagram.classList.toggle('dim',f!=='all');document.querySelectorAll('.block,.core').forEach(x=>x.classList.toggle('focus',f==='all'||x.classList.contains('focus-'+f)));document.querySelectorAll('.flow').forEach(x=>x.style.opacity=f==='all'||x.classList.contains(f)?'1':'.06')});
+document.querySelectorAll('.item').forEach(el=>{el.addEventListener('mouseenter',e=>{tip.textContent=el.dataset.info;tip.style.display='block'});el.addEventListener('mousemove',e=>{tip.style.left=e.clientX+14+'px';tip.style.top=e.clientY+14+'px'});el.addEventListener('mouseleave',()=>tip.style.display='none')});
+</script></body></html>
