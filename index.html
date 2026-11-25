@@ -126,7 +126,6 @@
       <div class="arch-frame">
         <iframe src="architecture.html" title="Packet SysTest integration diagram" loading="lazy"></iframe>
       </div>
-      <div class="arch-fallback"><a class="btn btn-ghost" href="architecture.html">Open the full diagram</a></div>
     </section>
 
     <section>
@@ -176,6 +175,9 @@ fetch('https://api.github.com/repos/Tooling2024/tool-updates/releases/latest')
   .then(function(r){ return r.ok ? r.json() : null; })
   .then(function(d){ if (d && d.tag_name) document.getElementById('ver').textContent = 'Version ' + d.tag_name.replace(/^v/, ''); })
   .catch(function(){});
+window.addEventListener('message', function(e){
+  if (e.data && e.data.archHeight) { var f=document.querySelector('.arch-frame iframe'); if (f) f.style.height = e.data.archHeight + 'px'; }
+});
 </script>
 </body>
 </html>
